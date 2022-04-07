@@ -1,11 +1,14 @@
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import React from 'react';
+import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 
 import app from '../../firebase.init';
 const googleProvider = new GoogleAuthProvider();
 const auth = getAuth(app)
 const SignIn = () => {
+
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
     const navigate = useNavigate()
     const handleGoogleProvider = () => {
         signInWithPopup(auth, googleProvider)
@@ -14,19 +17,29 @@ const SignIn = () => {
                 navigate('/dashboard')
             }).catch((error) => {
                 console.log(error);
-                const errorCode = error.code;
-                const errorMessage = error.message;
             });
     };
+    const handleEmail = (e) => {
+        setEmail(e.target.value);
+    }
+    const handlePassword = (e) => {
+        setPassword(e.target.value);
+    }
+    const handleLogin = (event) => {
+        event.preventDefault()
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                console.log(user);
+                navigate('/dashboard')
+                // ...
+            })
+            .catch((error) => {
+                console.log(error);
+            });
 
-
-
-
-
-
-
-
-
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -38,25 +51,41 @@ const SignIn = () => {
                         Sign in with Google
                     </button>
                 </div>
-                <form >
+                <form onSubmit={(event) => handleLogin(event)} >
                     <div className="mt-4">
                         <div>
                             <label className="block" for="email">Email</label>
-                            <input type="text" placeholder="Email"
+                            <input type="text"
+                                placeholder="Email"
+                                required
+                                onBlur={handleEmail}
                                 className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
                             <span className="text-xs tracking-wide text-red-600"></span>
                         </div>
                         <div className="mt-4">
                             <label className="block">Password</label>
-                            <input type="password" placeholder="Password"
+                            <input type="password"
+                                placeholder="Password"
+                                required
+                                onBlur={handlePassword}
                                 className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600" />
                         </div>
                         <div className="flex items-baseline justify-between">
-                            <button className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900">Login</button>
-                            <NavLink to='/' className="text-sm text-blue-600 hover:underline">Forgot password?</NavLink>
+                            <>
+                            {
+                            email
+                                
+                            }
+                            </>
                         </div>
                     </div>
                 </form>
+                <div class="mt-6 text-grey-dark">
+                    Don’t have a account?
+                    <NavLink class="text-blue-600 hover:underline" to='/signup'>
+                        register
+                    </NavLink>
+                </div>
             </div>
         </div>
     );
